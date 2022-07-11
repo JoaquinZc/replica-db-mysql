@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  mysqlmaster:
+    image: mysql:8-oracle
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./data/master:/var/lib/mysql/
+      - ./config/master:/etc/mysql/conf.d/
+  mysqlslave:
+    image: mysql:8-oracle
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./data/slave:/var/lib/mysql/
+      - ./config/slave:/etc/mysql/conf.d/
+  mysqlconnector:
+    image: mysql:8-oracle
+    environment:
+      MYSQL_SLAVE_PASSWORD: root
+      MYSQL_MASTER_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_REPLICATION_USER: repl
+      MYSQL_REPLICATION_PASSWORD: hola123xD
+    links:
+      - mysqlmaster
+      - mysqlslave
+    volumes:
+      - ./scripts/connector.sh:/tmp/mysql_connector.sh
+    command: /bin/bash -x /tmp/mysql_connector.sh
+
+
+
+
